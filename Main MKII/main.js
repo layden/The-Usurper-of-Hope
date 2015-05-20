@@ -20,7 +20,15 @@ function getDeltaTime()
 	return deltaTime;
 }
 
+var STATE_INTRO = 0;	
 
+var STATE_GAME = 1;
+
+var STATE_END = 2;
+
+var STATE_DEFEAT = 3;
+
+var gameState = STATE_INTRO;
 
 var SCREEN_WIDTH = canvas.width;
 var SCREEN_HEIGHT = canvas.height;
@@ -35,7 +43,6 @@ var fpsTime = 0;
 var chuckNorris = document.createElement("img");
 chuckNorris.src = "hero.png";
 
-var player = new Player();
 
 var keyboard = new Keyboard();
 
@@ -74,16 +81,49 @@ var cells = [];
 
 var METER = TILE;
 
-var GRAVITY = METER * 9.8 * 6;
+var MAXDX = METER * 7;
 
-var MAXDX = METER * 10;
-
-var MAXDY = METER * 2;
+var MAXDY = METER * 20;
 
 var FRCTION = MAXDX * 6;
 
+var ACCEL = MAXDX * 2;
+
 var JUMP = METER * 1500;
 
+var GRAVITY = METER * 9.8 * 6;
+
+var score = 0;
+
+var lives = 3;
+
+var musicBackgroud;
+
+var sfxFire;
+
+
+
+var player = new Player();
+
+function runIntro(deltaTime)
+{
+	
+}
+
+function runGame(deltaTime)
+{
+	
+}
+
+function runEnd(deltaTime)
+{
+	
+}
+
+function runDefeat(deltaTime)
+{
+	
+}
 
 function initialize(){
 	for(var layerIdx = 0; layerIdx < LAYER_COUNT; layerIdx++){
@@ -106,6 +146,25 @@ function initialize(){
 			}
 		}
 	}
+	
+	musicBackgroud = new Howl (
+	{
+		urls: ["Snowblind.ogg"],
+		loop: true,
+		buffer: true,
+		volume: 0.5
+	});
+	musicBackgroud.play();
+	
+	sfxFire = new Howl(
+	{
+		urls:["dethbleep.ogg"],
+		buffer: true,
+		volume: 1,
+		onend: function(){
+			isSfxPlaying = false;
+		}
+	});
 }
 
 function cellAtPixelCoord(layer, x,y)
@@ -144,27 +203,51 @@ function bound(value, min, max)
 		return max;
 	return value;
 }
-
+var worldOffsetX =0;
 function drawMap()
 {
-	for(var layerIdx=0;layerIdx<LAYER_COUNT;layerIdx++)
+	var maxTiles = Math.floor(SCREEN_WIDTH / TILE) + 2;
+	
+	var tileX = pixelToTile(player.position.x);
+	
+	var offsetX = TILE + Math.floor(player.position.x%TILE);
+	
+	startX = tileX - Math.floor(maxTiles / 2);
+	
+	if(startX < -1)
 	{
-		var idx=0;
-		for( var y=0;y<Boots1.layers[layerIdx].height;y++)
-		{
-			for( var x=0;x<Boots1.layers[layerIdx].width;x++)
-			{
-				if(Boots1.layers[layerIdx].data[idx]!=0)
-				{
-					var tileIndex = Boots1.layers[layerIdx].data[idx] - 1;
-					var sx = TILESET_PADDING + (tileIndex%TILESET_COUNT_X)*(TILESET_TILE+TILESET_SPACING);
-					var sy = TILESET_PADDING + (Math.floor(tileIndex/TILESET_COUNT_Y))*(TILESET_TILE + TILESET_SPACING);
-					context.drawImage(tileset,sx,sy,TILESET_TILE,TILESET_TILE,x*TILE,(y-1)*TILE,TILESET_TILE,TILESET_TILE);
-				}
-				idx++;
-			}
-		}
+		startX = 0;
+		offsetX = 0;
 	}
+	if(startX > MAP.tw - maxTiles)
+	{
+		startX = MAP.tw - maxTiles + 1;
+		offsetX = TILE;
+	}
+	worldOffsetX = startX * TILE + offsetX;
+	
+for( var layerIdx=0; layerIdx < LAYER_COUNT; layerIdx++ )
+{
+for( var y = 0; y < Boots1.layers[layerIdx].height; y++ )
+{
+var idx = y * Boots1.layers[layerIdx].width + startX;
+for( var x = startX; x < startX + maxTiles; x++ )
+{
+if( Boots1.layers[layerIdx].data[idx] != 0 )
+{
+
+var tileIndex = Boots1.layers[layerIdx].data[idx] - 1;
+var sx = TILESET_PADDING + (tileIndex % TILESET_COUNT_X) *
+(TILESET_TILE + TILESET_SPACING);
+var sy = TILESET_PADDING + (Math.floor(tileIndex / TILESET_COUNT_Y)) *
+(TILESET_TILE + TILESET_SPACING);
+context.drawImage(tileset, sx, sy, TILESET_TILE, TILESET_TILE,
+(x-startX)*TILE - offsetX, (y-1)*TILE, TILESET_TILE, TILESET_TILE);
+}
+idx++;
+}
+}
+}
 }
 
 function run()
@@ -173,18 +256,38 @@ function run()
 
 
 	
-	context.fillStyle = "#000000";		
+	context.fillStyle = "#F0F8FF";		
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
 	var deltaTime = getDeltaTime();
 	
+	switch(gameState)
+	{
+		case STATE_INTRO:
+		runIntro(deltaTime);
+		break;
+		case STATE_GAME:
+		runGame(deltaTime);
+		break;
+		case STATE_END:
+		runEnd(deltaTime);
+		break;
+		case STATE_DEFEAT:
+		runDefeat(deltaTime);
+		break;
+	}
+	
 	player.update(deltaTime);
+	
+	
+ drawMap();
+	
 	player.draw();
 	
     //bad.update(deltaTime);
 	//bad.draw();
 	
-	drawMap();
+
 
 	fpsTime += deltaTime;
 	fpsCount++;
@@ -195,6 +298,16 @@ function run()
 		fpsCount = 0;
 	}		
 		
+		
+		context.fillStyle = "red";
+		context.font="32px motorhead";
+		var scoreText = "Score: " + score;
+		context.fillText(scoreText, SCREEN_WIDTH - 170, 35);
+		
+		//for(var i=0; i<lives; i++)
+		//{
+			//context.drawImage(heartImage, 20 + ((heartImage.width+2)*i), 10);
+		//}
 
 	context.fillStyle = "#f00";
 	context.font="14px Arial";
