@@ -1,0 +1,5 @@
+Game is in Snowblind folder
+as with my asteroids assessment you may need to install the Motorhead font
+if stuck read the Tips.txt
+read post game read me after winning the the game 
+read credits at will

@@ -1,0 +1,18 @@
+This may be a long read 
+
+SOUND-sorry if the music and SFX in the game where annoying I like it but I can see someone who doesn’t like early metal not enjoying it
+
+ENEMIES-the 2 main things not there are enemies and bullets I didn't fuss to much over this due to the platforming focusing on positioning/timing where as enemies would be more about reflex 
+so it's a bit of a challenge focus thing in order to avoid the game lacking challenge variety I added the stamina mechanic witch I think works a little better with both the games setting and
+give a greater emphasis on problem solving and tactics 
+
+Y Axis-also missing from the game is Y Axis scrolling witch is why the game is more or less flat when compared to other platformers to me the work around of making a wider game trying to keep
+the platforming challenges closer to one another was a lot more simple and if not improving the game didn't take away the core play aesthetics 
+
+TUTORIAL-I know one of the worst ways to do a tutorial is telling the player what to do via pre game text but due to the lack of enemies I would say the game draws it's challenge less
+from multiple way to approach a problem and more so from execution I think the brief explanation will be enough
+
+TIPS-I also know that just telling your player how to beat the game ruins any notion of purpose to the game so the tips act as more a if you just need to quickly see if the game works
+
+
+
